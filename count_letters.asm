@@ -1,5 +1,5 @@
 .data
-str: .asciiz "Wolfie Seawolf!!! 2019??"
+str: .asciiz "Wolfie Seaolf!!! 2019??"
 
 .text
 .globl main
