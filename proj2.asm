@@ -105,13 +105,9 @@ count_letters.is_lowercase:
 #################### ENCODE ####################
 encode_plaintext:
 	li $v0, 0
-	addi $sp, $sp, -12	# Allocates space on stack
-	sw $s0, 8($sp)		# Saved $s2 onto stack
-	sw $s1, 4($sp)		# Saved $s3 onto stack
-	sw $s2, 0($sp)		# Saved $s4 onto stack
+	addi $sp, $sp, -4	# Allocates space on stack
+	sw $s0, 0($sp)		# Saved $s2 onto stack
 	move $s0, $ra		# Move $ra value to be saved
-	move $s1, $a0		# Save plaintext address so we can count later
-	move $s2, $a2		# Save ab_length for length checks later
 	# SAFE BODY START
 	# Count and find out value of $v1
 	jal encode_plaintext.ab
@@ -119,10 +115,8 @@ encode_plaintext:
 	
 	# SAFE BODY END
 	move $ra, $s0		# Restore $ra value
-	lw $s2, 0($sp)		# Restore $s2 value
-	lw $s1, 4($sp)		# Restore $s1 value
-	lw $s0, 8($sp)		# Restore $s2 value
-	addi $sp, $sp, 12	# Allocates space on stack
+	lw $s0, 0($sp)		# Restore $s2 value
+	addi $sp, $sp, 4	# Allocates space on stack
     	j return		
 encode_plaintext.ab:
 	li $t5, 5
@@ -207,18 +201,103 @@ encode_plaintext.writeEnd:
 	sb  $t2, 4($a1)
 	
 	j return
+#################### ENCODE ####################
 encrypt:
-	addi $sp, $sp, -4	# Allocates space on stack
-	sw $s0, 0($sp)		# Saved $s0 onto stack
+	lw $t0, 0($sp)		# Get Bacon Code
+	addi $sp, $sp, -24	# Allocates space on stack
+	sw $s5, 20($sp)
+	sw $s0, 16($sp)		# Saved $s0 onto stack
+	sw $s1, 12($sp)		# Saved $s0 onto stack
+	sw $s2, 8($sp)
+	sw $s3, 4($sp)
+	sw $s4, 0($sp)
 	move $s0, $ra		# Move $ra value to be saved
+	move $s1, $a1		# Save cipher text string
+	move $s2, $a2		# Save ab_text 
+	move $s3, $a3		# Save ab_text length
+	move $s4, $a0		# Save plain_text
+	move $s5, $t0		# Save bacon code
 	# SAFE BODY START
-
+	move $a0, $s4
+	jal to_lowercase
+	move $a0, $s4
+	move $a1, $s2
+	move $a2, $s3
+	move $a3, $s5
+	jal encode_plaintext
+	move $s4, $v1		# Save success result
+	move $a0, $s1
+	jal count_letters
+	move $v1, $s4
+	move $a0, $s1	# Cipher Text base address
+	move $a1, $s2	# AB_text base address
+	move $a2, $s3	# AB_text length
+	li $t0, 5	# Iterator over AB_TEXT, Start at 5 since BBBBB doesnt count
+	li $v0, 0	# Set running sum to 0
+	bge $t0, $a2, encrypt.end
+	j encrypt.loop
+encrypt.loop:
+	lb $t1, 0($a0)	# Character in cipher text
+	lb $t2, 0($a1)	# Associated character in AB_text
 	
+	beq $t1, 0, encrypt.end
+	ble $t1, 90, encrypt.confirm_letter_uppercase
+	bge $t1, 97, encrypt.confirm_letter_lowercase
+encrypt.confirm_letter_lowercase:
+	bgt $t1, 122, encrypt.not_letter
+	j encrypt.is_letter
+encrypt.confirm_letter_uppercase:
+	blt $t1, 65, encrypt.not_letter
+	j encrypt.is_letter
+encrypt.not_letter:
+	addi $a0, $a0, 1	# Increment read address by 1
+	j encrypt.loop
+encrypt.is_letter:
+	addi $v0, $v0, 1	# Increase letters found by 1
+	beq $t2, 66, encrypt.to_uppercase_letter
+	
+	blt $t1, 97, encrypt.upper_to_lower
+	addi $a0, $a0, 1	# Increment read addresses by 1
+	addi $a1, $a1, 1
+	addi $t0, $t0, 1
+	bge $t0, $a2, encrypt.end
+	j encrypt.loop
+encrypt.upper_to_lower:
+	addi $t1, $t1, 32
+	sb $t1, 0($a0)
+	
+	addi $a0, $a0, 1	# Increment read addresses by 1
+	addi $a1, $a1, 1
+	addi $t0, $t0, 1
+	bge $t0, $a2, encrypt.end
+	j encrypt.loop
+encrypt.to_uppercase_letter:
+	bge $t1, 97, encrypt.lower_to_upper
+	addi $a0, $a0, 1	# Increment read addresses by 1
+	addi $a1, $a1, 1
+	addi $t0, $t0, 1
+	bge $t0, $a2, encrypt.end
+	j encrypt.loop
+encrypt.lower_to_upper:
+	addi $t1, $t1, -32
+	sb $t1, 0($a0)
+	
+	addi $a0, $a0, 1	# Increment read addresses by 1
+	addi $a1, $a1, 1
+	addi $t0, $t0, 1
+	bge $t0, $a2, encrypt.end
+	j encrypt.loop
+encrypt.end:
 	# SAFE BODY END
 	move $ra, $s0		# Restore $ra value
-	lw $s0, 0($sp)		# Restore $s0 value
-	addi $sp, $sp, 4	# Allocates space on stack
-    	j return
+	lw $s4, 0($sp)
+	lw $s3, 4($sp)
+	lw $s2, 8($sp)
+	lw $s1, 12($sp)		# Restore value
+	lw $s0, 16($sp)		# Restore $s0 value
+	lw $s5, 20($sp)
+	addi $sp, $sp, 24	# Allocates space on stack
+    	j return	
 	
 	
 	
