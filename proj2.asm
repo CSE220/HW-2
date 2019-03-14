@@ -126,11 +126,8 @@ encode_plaintext:
     	j return		
 encode_plaintext.ab:
 	li $t5, 5
-	li $v1, 0
 	lbu $t0, 0($a0)		# Load character into $t0	
 	beq $t0, 0, encode_plaintext.writeEnd	# If character is 0, we are done
-	
-	addi $v0, $v0, 1
 	
 	beq $t0, 32, encode_plaintext.space
 	beq $t0, 33, encode_plaintext.exclamation
@@ -189,6 +186,7 @@ encode_plaintext.writeAB:
 	sb  $t2, 4($a1)
 	addi $a2, $a2, -1
 	li $v1, 1
+	addi $v0, $v0, 1
 	ble $a2, 5, encode_plaintext.writeEnd
 
 	addi $a0, $a0, 1	# Move read address up by 1
