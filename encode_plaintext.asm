@@ -1,9 +1,9 @@
 .data
-plaintext: .asciiz "java! not. a. fan."
-ab_text: .ascii "**************************************************************************************************"
+plaintext: .asciiz ""
+ab_text: .ascii "gg!"
 null: .byte 0
 .align 2
-ab_text_length: .word 98
+ab_text_length: .word 2
 
 .text
 .globl main
