@@ -385,19 +385,29 @@ decode_ciphertext.exit:
 	
 
 decrypt:
-	addi $sp, $sp, -4	# Allocates space on stack
-	sw $s0, 0($sp)		# Saved $s0 onto stack
+	addi $sp, $sp, -12	# Allocates space on stack
+	sw $s0, 8($sp)		# Saved $s0 onto stack
+	sw $s1, 4($sp)		
+	sw $s2, 0($sp)		
 	move $s0, $ra		# Move $ra value to be saved
+	move $s1, $a1		# Store plaintext
+	move $s2, $a2		# Store AB_text
 	# SAFE BODY START
-
+	move $a1, $a2
+	move $a2, $a3
+	jal decode_ciphertext
+	bgt $v0, -1, return	
+	
+	
 	
 	# SAFE BODY END
 	move $ra, $s0		# Restore $ra value
-	lw $s0, 0($sp)		# Restore $s0 value
-	addi $sp, $sp, 4	# Allocates space on stack
+	lw $s0, 0($sp)
+	lw $s1, 4($sp)
+	lw $s0, 8($sp)		# Restore $s0 value
+	addi $sp, $sp, 12	# Allocates space on stack
     	j return
-	
-	
+		
 #################### UTILS ####################
 return:
 	jr $ra
