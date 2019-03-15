@@ -1,9 +1,9 @@
 .data
-plaintext: .asciiz "stony brook"
-ab_text: .ascii "*******************************************************************"
+plaintext: .asciiz "i’m.a.seawolf!!"
+ab_text: .ascii "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
 null: .byte 0
 .align 2
-ab_text_length: .word 67
+ab_text_length: .word 72
 
 .text
 .globl main

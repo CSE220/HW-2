@@ -126,6 +126,7 @@ encode_plaintext.ab:
 	beq $t0, 32, encode_plaintext.space
 	beq $t0, 33, encode_plaintext.exclamation
 	beq $t0, 39, encode_plaintext.quotation
+	beq $t0, 25, encode_plaintext.quotation	# Same as quotation?
 	beq $t0, 44, encode_plaintext.comma
 	beq $t0, 46, encode_plaintext.period
 	
@@ -202,6 +203,7 @@ encode_plaintext.writeEnd:
 	
 	j return
 #################### ENCODE ####################
+#################### ENCODE ####################
 encrypt:
 	lw $t0, 0($sp)		# Get Bacon Code
 	addi $sp, $sp, -24	# Allocates space on stack
@@ -231,16 +233,18 @@ encrypt:
 	move $v1, $s4
 	move $a0, $s1	# Cipher Text base address
 	move $a1, $s2	# AB_text base address
-	move $a2, $s3	# AB_text length
 	li $t0, 5	# Iterator over AB_TEXT, Start at 5 since BBBBB doesnt count
 	li $v0, 0	# Set running sum to 0
-	bge $t0, $a2, encrypt.end
 	j encrypt.loop
 encrypt.loop:
 	lb $t1, 0($a0)	# Character in cipher text
 	lb $t2, 0($a1)	# Associated character in AB_text
 	
 	beq $t1, 0, encrypt.end
+	beq $t2, 'A', encrypt.continue
+	beq $t2, 'B', encrypt.continue
+	j encrypt.end
+encrypt.continue:
 	ble $t1, 90, encrypt.confirm_letter_uppercase
 	bge $t1, 97, encrypt.confirm_letter_lowercase
 encrypt.confirm_letter_lowercase:
@@ -254,13 +258,13 @@ encrypt.not_letter:
 	j encrypt.loop
 encrypt.is_letter:
 	addi $v0, $v0, 1	# Increase letters found by 1
+	
 	beq $t2, 66, encrypt.to_uppercase_letter
 	
 	blt $t1, 97, encrypt.upper_to_lower
 	addi $a0, $a0, 1	# Increment read addresses by 1
 	addi $a1, $a1, 1
 	addi $t0, $t0, 1
-	bge $t0, $a2, encrypt.end
 	j encrypt.loop
 encrypt.upper_to_lower:
 	addi $t1, $t1, 32
@@ -269,14 +273,12 @@ encrypt.upper_to_lower:
 	addi $a0, $a0, 1	# Increment read addresses by 1
 	addi $a1, $a1, 1
 	addi $t0, $t0, 1
-	bge $t0, $a2, encrypt.end
 	j encrypt.loop
 encrypt.to_uppercase_letter:
 	bge $t1, 97, encrypt.lower_to_upper
 	addi $a0, $a0, 1	# Increment read addresses by 1
 	addi $a1, $a1, 1
 	addi $t0, $t0, 1
-	bge $t0, $a2, encrypt.end
 	j encrypt.loop
 encrypt.lower_to_upper:
 	addi $t1, $t1, -32
@@ -285,7 +287,6 @@ encrypt.lower_to_upper:
 	addi $a0, $a0, 1	# Increment read addresses by 1
 	addi $a1, $a1, 1
 	addi $t0, $t0, 1
-	bge $t0, $a2, encrypt.end
 	j encrypt.loop
 encrypt.end:
 	# SAFE BODY END

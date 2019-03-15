@@ -1,10 +1,10 @@
 .data
-plaintext: .asciiz "Stony Brook"
-ciphertext: .asciiz "CSE 220 and CSE 320 form a two-course sequence. 11001101 is a binary number. 81FE2D is a base-16 number. Base conversion is FUN!"
-ab_text: .ascii "*******************************************************************"
+plaintext: .asciiz "Wolfie Seawolf"
+ciphertext: .asciiz "Python features a dynamic type system and automatic memory management. It supports multiple PROGRAMMING paradigms."
+ab_text: .ascii "******"
 null: .byte 0
 .align 2
-ab_text_length: .word 67
+ab_text_length: .word 6
 
 .text
 .globl main
