@@ -396,13 +396,15 @@ decrypt:
 	move $a1, $a2
 	move $a2, $a3
 	jal decode_ciphertext
-	bgt $v0, -1, return	
-	
+	beq $v0, -1, decrypt.exit	
+
 	# Set up for decryption of AB_text
 	move $a0, $s2	# Address of AB_text
 	move $a1, $s1	# Address of plaintext
+	li $v0, 0	# Set running sum to 0
+	j decrypt.loop
 decrypt.loop:
-	
+	j decrypt.getChar
 decrypt.getChar:
 	lbu $t1, 0($a0)
 	beq $t1, 'A', decrypt.A
@@ -418,9 +420,10 @@ decrypt.A:
 decrypt.B:
 	lbu $t1, 1($a0)
 	beq $t1, 'A', decrypt.BA
+	beq $t1, 'B', decrypt.BB
 	
 	j decrypt.exit
-decrypt.AA: 2 + 3 + 6 + 12
+decrypt.AA:
 	beq $t1, 'A', decrypt.AAA
 	beq $t1, 'B', decrypt.AAB
 	
@@ -677,13 +680,20 @@ decrypt.BBBBA:
 	li $t2, '.'
 	j decrypt.write
 decrypt.BBBBB:
-	j decrypt.exit
+	j decrypt.write_end
 decrypt.write:
+	sb $t2, 0($a1)	#Write decoded char into plaintext
+
 	addi $a0, $a0, 5
 	addi $a1, $a1, 1
-	addi $t0, $t0, 1
+	addi $v0, $v0, 1
 	
 	j decrypt.loop
+decrypt.write_end:
+	li $t2, '\0'
+	sb $t2, 0($a1)
+	
+	j decrypt.exit
 decrypt.exit:
 	# SAFE BODY END
 	move $ra, $s0		# Restore $ra value
