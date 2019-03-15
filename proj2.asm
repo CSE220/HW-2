@@ -299,22 +299,89 @@ encrypt.end:
 	lw $s5, 20($sp)
 	addi $sp, $sp, 24	# Allocates space on stack
     	j return	
-	
-	
-	
+#################### DECODE ####################		
 decode_ciphertext:
-	addi $sp, $sp, -4	# Allocates space on stack
-	sw $s0, 0($sp)		# Saved $s0 onto stack
+	addi $sp, $sp, -20	# Allocates space on stack
+	sw $s0, 16($sp)		# Saved $s0 onto stack
+	sw $s1, 12($sp)
+	sw $s2, 8($sp)
+	sw $s3, 4($sp)
+	sw $s4, 0($sp)
 	move $s0, $ra		# Move $ra value to be saved
+	move $s1, $a0		# The ciphertext
+	move $s2, $a1		# AB_text
+	move $s3, $a2		# AB_text length
 	# SAFE BODY START
-
+	move $a0, $s1
+	jal count_letters
+	bgt $v0, $s3, decode_ciphertext.error
 	
+	li $v0, 0	# Initialize running sum
+	move $a0, $s1	# Ciphertext
+	move $a1, $s2	# AB_text
+	move $a2, $s3	# AB_text_length
+	li $t0, 0	# iterator
+	li $t3, 0	# Consecutive B check
+	li $t4, 0	# Increment from 0 to 5. At 4 if we are at end of block of 5
+	j decode_ciphertext.loop
+decode_ciphertext.loop:
+	lb $t1, 0($a0)	# Character in cipher text
+	
+	beq $t0, $a2, decode_ciphertext.exit
+	beq $t1, 0, decode_ciphertext.exit
+	ble $t1, 90, decode_ciphertext.confirm_uppercase
+	bge $t1, 97, decode_ciphertext.confirm_lowercase
+	
+	addi $a0, $a0, 1
+	j decode_ciphertext.loop
+decode_ciphertext.confirm_uppercase:
+	bge $t1, 65, decode_ciphertext.is_uppercase
+	
+	addi $a0, $a0, 1
+	j decode_ciphertext.loop
+decode_ciphertext.confirm_lowercase:
+	ble $t1, 122, decode_ciphertext.is_lowercase
+
+	addi $a0, $a0, 1
+	j decode_ciphertext.loop
+decode_ciphertext.is_uppercase:
+	li $t2, 'B'
+	addi $t3, $t3, 1	# Increment B count
+	j decode_ciphertext.write
+decode_ciphertext.is_lowercase:
+	li $t2, 'A'
+	li $t3, 0	# Reset B count
+	j decode_ciphertext.write
+decode_ciphertext.write:
+	sb $t2, 0($a1)
+	
+	addi $a1, $a1, 1
+	addi $a0, $a0, 1
+	addi $t0, $t0, 1
+	addi $t4, $t4, 1
+	addi $v0, $v0, 1
+	
+	beq $t4, 5, decode_ciphertext.check_exit
+	
+	j decode_ciphertext.loop
+decode_ciphertext.check_exit:
+	beq $t3, 5, decode_ciphertext.exit
+	
+	li $t4, 0	# Reset counter
+	j decode_ciphertext.loop
+decode_ciphertext.error:
+	li $v0, -1
+	j decode_ciphertext.exit
+decode_ciphertext.exit:
 	# SAFE BODY END
 	move $ra, $s0		# Restore $ra value
-	lw $s0, 0($sp)		# Restore $s0 value
+	lw $s4, 0($sp)
+	lw $s3, 4($sp)
+	lw $s2, 8($sp)
+	lw $s1, 12($sp)
+	lw $s0, 16($sp)		# Restore $s0 value
 	addi $sp, $sp, 4	# Allocates space on stack
-    	j return
-	
+    	j return	
 	
 
 decrypt:

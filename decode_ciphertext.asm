@@ -1,9 +1,9 @@
 .data
-ciphertext: .asciiz "sHARDPLate Is aN AncIENt AND maGIcAL TyPe OF fUlL-BODy ARMOr FOUNd ON ROsHAr. It iS infUseD wITh StoRMLigHt AnD GRANts great power."
-ab_text: .ascii "******************************************************************************************************************"
+ciphertext: .asciiz "AbcDefgHijkLMnOpqrSTUVwXyzaBCDefGhijKlMNoPQRSTUvWXYZABC"
+ab_text: .ascii "///////////////////////////////////////////////////////"
 null: .byte 0
 .align 2
-ab_text_length: .word 114
+ab_text_length: .word 55
 
 .text
 .globl main
