@@ -388,7 +388,7 @@ decrypt:
 	addi $sp, $sp, -12	# Allocates space on stack
 	sw $s0, 8($sp)		# Saved $s0 onto stack
 	sw $s1, 4($sp)		
-	sw $s2, 0($sp)		
+	sw $s2, 0($sp)	
 	move $s0, $ra		# Move $ra value to be saved
 	move $s1, $a1		# Store plaintext
 	move $s2, $a2		# Store AB_text
@@ -398,16 +398,300 @@ decrypt:
 	jal decode_ciphertext
 	bgt $v0, -1, return	
 	
+	# Set up for decryption of AB_text
+	move $a0, $s2	# Address of AB_text
+	move $a1, $s1	# Address of plaintext
+decrypt.loop:
 	
+decrypt.getChar:
+	lbu $t1, 0($a0)
+	beq $t1, 'A', decrypt.A
+	beq $t1, 'B', decrypt.B
 	
+	j decrypt.exit
+decrypt.A:
+	lbu $t1, 1($a0)
+	beq $t1, 'A', decrypt.AA
+	beq $t1, 'B', decrypt.AB
+	
+	j decrypt.exit
+decrypt.B:
+	lbu $t1, 1($a0)
+	beq $t1, 'A', decrypt.BA
+	
+	j decrypt.exit
+decrypt.AA: 2 + 3 + 6 + 12
+	beq $t1, 'A', decrypt.AAA
+	beq $t1, 'B', decrypt.AAB
+	
+	j decrypt.exit
+decrypt.AB:
+	lbu $t1, 2($a0)
+	beq $t1, 'A', decrypt.ABA
+	beq $t1, 'B', decrypt.ABB
+	
+	j decrypt.exit
+decrypt.BA:
+	lbu $t1, 2($a0)
+	beq $t1, 'A', decrypt.BAA
+	beq $t1, 'B', decrypt.BAB
+decrypt.BB:
+	lbu $t1, 2($a0)
+	beq $t1, 'A', decrypt.BBA
+	beq $t1, 'B', decrypt.BBB
+decrypt.AAA:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.AAAA
+	beq $t1, 'B', decrypt.AAAB
+	
+	j decrypt.exit
+decrypt.AAB:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.AABA
+	beq $t1, 'B', decrypt.AABB
+	
+	j decrypt.exit
+decrypt.ABA:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.ABAA
+	beq $t1, 'B', decrypt.ABAB
+	
+	j decrypt.exit
+decrypt.ABB:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.ABBA
+	beq $t1, 'B', decrypt.ABBB
+	
+	j decrypt.exit
+decrypt.BAA:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.BAAA
+	beq $t1, 'B', decrypt.BAAB
+	
+	j decrypt.exit
+decrypt.BAB:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.BABA
+	beq $t1, 'B', decrypt.BABB
+	
+	j decrypt.exit
+decrypt.BBA:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.BBAA
+	beq $t1, 'B', decrypt.BBAB
+	
+	j decrypt.exit
+decrypt.BBB:
+	lbu $t1, 3($a0)
+	beq $t1, 'A', decrypt.BBBA
+	beq $t1, 'B', decrypt.BBBB
+	
+	j decrypt.exit
+decrypt.AAAA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.AAAAA
+	beq $t1, 'B', decrypt.AAAAB
+	
+	j decrypt.exit
+decrypt.AAAB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.AAABA
+	beq $t1, 'B', decrypt.AAABB
+	
+	j decrypt.exit
+decrypt.AABA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.AABAA
+	beq $t1, 'B', decrypt.AABAB
+	
+	j decrypt.exit
+decrypt.AABB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.AABBA
+	beq $t1, 'B', decrypt.AABBB
+	
+	j decrypt.exit
+decrypt.ABAA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.ABAAA
+	beq $t1, 'B', decrypt.ABAAB
+	
+	j decrypt.exit
+decrypt.ABAB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.ABABA
+	beq $t1, 'B', decrypt.ABABB
+	
+	j decrypt.exit
+decrypt.ABBA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.ABBAA
+	beq $t1, 'B', decrypt.ABBAB
+	
+	j decrypt.exit
+decrypt.ABBB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.ABBBA
+	beq $t1, 'B', decrypt.ABBBB
+	
+	j decrypt.exit
+decrypt.BAAA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BAAAA
+	beq $t1, 'B', decrypt.BAAAB
+	
+	j decrypt.exit
+decrypt.BAAB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BAABA
+	beq $t1, 'B', decrypt.BAABB
+	
+	j decrypt.exit
+decrypt.BABA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BABAA
+	beq $t1, 'B', decrypt.BABAB
+	
+	j decrypt.exit
+decrypt.BABB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BABBA
+	beq $t1, 'B', decrypt.BABBB
+	
+	j decrypt.exit
+decrypt.BBAA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BBAAA
+	beq $t1, 'B', decrypt.BBAAB
+	
+	j decrypt.exit
+decrypt.BBAB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BBABA
+	beq $t1, 'B', decrypt.BBABB
+	
+	j decrypt.exit
+decrypt.BBBA:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BBBAA
+	beq $t1, 'B', decrypt.BBBAB
+	
+	j decrypt.exit
+decrypt.BBBB:
+	lbu $t1, 4($a0)
+	beq $t1, 'A', decrypt.BBBBA
+	beq $t1, 'B', decrypt.BBBBB
+	
+	j decrypt.exit
+decrypt.AAAAA:
+	li $t2, 'A'
+	j decrypt.write
+decrypt.AAAAB:
+	li $t2, 'B'
+	j decrypt.write
+decrypt.AAABA:
+	li $t2, 'C'
+	j decrypt.write
+decrypt.AAABB:
+	li $t2, 'D'
+	j decrypt.write
+decrypt.AABAA:
+	li $t2, 'E'
+	j decrypt.write
+decrypt.AABAB:
+	li $t2, 'F'
+	j decrypt.write
+decrypt.AABBA:
+	li $t2, 'G'
+	j decrypt.write
+decrypt.AABBB:
+	li $t2, 'H'
+	j decrypt.write
+decrypt.ABAAA:
+	li $t2, 'I'
+	j decrypt.write
+decrypt.ABAAB:
+	li $t2, 'J'
+	j decrypt.write
+decrypt.ABABA:
+	li $t2, 'K'
+	j decrypt.write
+decrypt.ABABB:
+	li $t2, 'L'
+	j decrypt.write
+decrypt.ABBAA:
+	li $t2, 'M'
+	j decrypt.write
+decrypt.ABBAB:
+	li $t2, 'N'
+	j decrypt.write
+decrypt.ABBBA:
+	li $t2, 'O'
+	j decrypt.write
+decrypt.ABBBB:
+	li $t2, 'P'
+	j decrypt.write
+decrypt.BAAAA:
+	li $t2, 'Q'
+	j decrypt.write
+decrypt.BAAAB:
+	li $t2, 'R'
+	j decrypt.write
+decrypt.BAABA:
+	li $t2, 'S'
+	j decrypt.write
+decrypt.BAABB:
+	li $t2, 'T'
+	j decrypt.write
+decrypt.BABAA:
+	li $t2, 'U'
+	j decrypt.write
+decrypt.BABAB:
+	li $t2, 'V'
+	j decrypt.write
+decrypt.BABBA:
+	li $t2, 'W'
+	j decrypt.write
+decrypt.BABBB:
+	li $t2, 'X'
+	j decrypt.write
+decrypt.BBAAA:
+	li $t2, 'Y'
+	j decrypt.write
+decrypt.BBAAB:
+	li $t2, 'Z'
+	j decrypt.write
+decrypt.BBABA:
+	li $t2, ' '
+	j decrypt.write
+decrypt.BBABB:
+	li $t2, '!'
+	j decrypt.write
+decrypt.BBBAA:
+	li $t2, '’'
+	j decrypt.write
+decrypt.BBBAB:
+	li $t2, ','
+	j decrypt.write
+decrypt.BBBBA:
+	li $t2, '.'
+	j decrypt.write
+decrypt.BBBBB:
+	j decrypt.exit
+decrypt.write:
+	addi $a0, $a0, 5
+	addi $a1, $a1, 1
+	addi $t0, $t0, 1
+	
+	j decrypt.loop
+decrypt.exit:
 	# SAFE BODY END
 	move $ra, $s0		# Restore $ra value
-	lw $s0, 0($sp)
+	lw $s2, 0($sp)
 	lw $s1, 4($sp)
 	lw $s0, 8($sp)		# Restore $s0 value
 	addi $sp, $sp, 12	# Allocates space on stack
     	j return
-		
 #################### UTILS ####################
 return:
 	jr $ra
