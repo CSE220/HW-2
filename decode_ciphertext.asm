@@ -1,9 +1,9 @@
 .data
-ciphertext: .asciiz "Cse 220 AnD csE 320 FoRM A twO-CoURSe seQUeNce. 11001101 is a BInarY nUMBer. 81FE2D is A bAsE-16 NUMBer. Base conversion is FUN!"
-ab_text: .ascii "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+ciphertext: .asciiz "2019 GO STONY BROOK!"
+ab_text: .ascii "+++++++++++++++"
 null: .byte 0
 .align 2
-ab_text_length: .word 81
+ab_text_length: .word 15
 
 .text
 .globl main
